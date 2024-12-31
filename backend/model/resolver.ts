@@ -12,15 +12,31 @@ function isAuth(user) {
 const resolvers = {
   Query: {
     say: () => "hello",
-    getUser: async (_, { id }, { userr, prisma }) => {
+    getUser: async (_, { email, password }, { prisma }) => {
       try {
-        isAuth(userr);
+        if (email === undefined || password === undefined) {
+          throw new Error("email and password is req");
+        }
+        if (!isE.validate(email)) {
+          throw new Error("email in not valid");
+        }
         const user = await prisma.user.findUnique({
-          where: { id },
+          where: { email },
           include: { todos: true },
         });
-        if (!user) throw new Error("User not found");
-        return user;
+        if (!user) {
+          throw new Error("user not found");
+        }
+        const isAllowed = await bcrypt.compare(password, user.password);
+
+        if (!isAllowed) {
+          throw new Error("password does not match");
+        }
+        const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
+          expiresIn: "1h",
+        });
+
+        return { token, user };
       } catch (error) {
         throw new Error(error.message);
       }
@@ -36,7 +52,7 @@ const resolvers = {
     },
     getAllTodo: async (_, __, { userr, prisma }) => {
       try {
-        isAuth(userr);
+        //isAuth(userr);
         const allTodo = await prisma.todo.findMany({ include: { user: true } });
         return allTodo;
       } catch (error) {
@@ -65,35 +81,6 @@ const resolvers = {
         });
 
         const token = jwt.sign({ userId: user.id }, SECRET_KEY, {
-          expiresIn: "1h",
-        });
-
-        return { token, user };
-      } catch (error) {
-        throw new Error(error.message);
-      }
-    },
-    login: async (_, { email, password }, { prisma }) => {
-      try {
-        if (email === undefined || password === undefined) {
-          throw new Error("email and password is req");
-        }
-        if (!isE.validate(email)) {
-          throw new Error("email in not valid");
-        }
-        const user = await prisma.user.findUnique({
-          where: { email },
-          include: { todos: true },
-        });
-        if (!user) {
-          throw new Error("user not found");
-        }
-        const isAllowed = await bcrypt.compare(password, user.password);
-
-        if (!isAllowed) {
-          throw new Error("password does not match");
-        }
-        const token = jwt.sign({ userId: user.id }, SECRET_KEY, SECRET_KEY, {
           expiresIn: "1h",
         });
 

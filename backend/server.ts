@@ -55,7 +55,7 @@ async function contextFun({ req }) {
   let obj = { prisma };
   const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) throw new Error("token is not provided");
+  //if (!token) throw new Error("token is not provided");
 
   const userr = jwt.verify(token, SECRET_KEY);
   if (userr) {
