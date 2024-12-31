@@ -28,5 +28,5 @@ model Todo{
   done Boolean
   pvt Boolean @default(false)
   byId Int
-  user User @relation(fields: [byId], references: [id])
+  user User @relation(fields: [byId], references: [id], onDelete: Cascade)
 }

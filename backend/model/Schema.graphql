@@ -11,6 +11,7 @@ type Todo {
   createdAt: String!
   task: String!
   done: Boolean!
+  pvt:Boolean!
   user: User
 }
 
@@ -22,6 +23,7 @@ type AuthResponse {
 type Mutation {
   signup(email: String!, password: String!): AuthResponse!
   login(email: String!, password: String!): AuthResponse!
+  removeUser(id:Int!,password:String!):User!
   addTodo(userId:Int!,task:String!,done:Boolean!):Todo!
   togaleDone(id:Int!):Todo
   delletTodo(id:Int!):Todo

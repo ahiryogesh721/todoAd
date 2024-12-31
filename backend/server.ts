@@ -16,8 +16,13 @@ const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const { resolvers } = require("./model/resolver");
 
+import jwt from "jsonwebtoken";
+import { error } from "console";
+
 const PORT = process.env.PORT;
+
 const prisma = new PrismaClient();
+const SECRET_KEY = process.env.KEY;
 
 app.use(
   cors({
@@ -41,20 +46,26 @@ const typeDefs = fs.readFileSync(
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: ({ req }) => {
-    return {
-      ...req,
-      prisma,
-    };
-  },
 });
 
 app.use("/users", userRoute);
 app.use("/", rootRoute);
 
+async function contextFun({ req }) {
+  let obj = { prisma };
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) throw new Error("token is not provided");
+
+  const userr = jwt.verify(token, SECRET_KEY);
+  if (userr) {
+    return { ...obj, userr };
+  } else return { ...obj, userr: null };
+}
+
 const dbServerStart = async () => {
   await server.start();
-  app.use("/DB", expressMiddleware(server));
+  app.use("/DB", expressMiddleware(server, { context: contextFun }));
 };
 dbServerStart();
 
