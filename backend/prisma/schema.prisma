@@ -16,8 +16,8 @@ datasource db {
 model User{
   id Int @id  @unique @default(autoincrement())
   createdAt  DateTime @default(now())
-  email String @unique @default("email_def")
-  password String @default("pass_def") 
+  email String @unique 
+  password String  
   todos Todo[]
 }
 
