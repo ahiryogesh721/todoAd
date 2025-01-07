@@ -5,19 +5,18 @@ const express = require("express");
 export const app = express();
 
 const rootRoute = require("./routes/rootRoute");
-const userRoute = require("./routes/userRoute");
 
 require("dotenv").config();
 const cors = require("cors");
 const json = require("body-parser").json();
 const fs = require("fs");
+import cookieParser from "cookie-parser";
 
 const { ApolloServer } = require("@apollo/server");
 const { expressMiddleware } = require("@apollo/server/express4");
 const { resolvers } = require("./model/resolver");
 
 import jwt from "jsonwebtoken";
-import { error } from "console";
 
 const PORT = process.env.PORT;
 
@@ -29,6 +28,7 @@ app.use(
     origin: (origin, callback) => {
       return callback(null, true);
     },
+    credentials: true,
   })
 );
 app.use((req, res, next) => {
@@ -37,6 +37,7 @@ app.use((req, res, next) => {
 });
 app.use(json);
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 const typeDefs = fs.readFileSync(
   path.join(__dirname, "model", "Schema.graphql"),
@@ -48,19 +49,23 @@ const server = new ApolloServer({
   resolvers,
 });
 
-app.use("/users", userRoute);
 app.use("/", rootRoute);
 
-async function contextFun({ req }) {
-  let obj = { prisma };
-  const token = req.headers.authorization?.split(" ")[1];
+async function contextFun({ req, res }) {
+  let obj = { prisma, req, res };
 
-  //if (!token) throw new Error("token is not provided");
+  const token = req?.cookies?.token;
 
-  const userr = jwt.verify(token, SECRET_KEY);
-  if (userr) {
-    return { ...obj, userr };
-  } else return { ...obj, userr: null };
+  if (!token) {
+    return obj;
+  }
+
+  try {
+    const decoded = jwt.verify(token, SECRET_KEY);
+    return { ...obj, userId: decoded.userId };
+  } catch (error) {
+    return { ...obj };
+  }
 }
 
 const dbServerStart = async () => {

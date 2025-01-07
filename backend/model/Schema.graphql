@@ -1,37 +1,50 @@
 type User {
-  id: Int!
-  createdAt: String!
-  email: String! 
-  password: String!
-  todos: [Todo!]
+  id: Int
+  createdAt: String
+  email: String
+  password: String
+  todos: [Todo]
 }
 
 type Todo {
-  id: Int!
-  createdAt: String!
-  task: String!
-  done: Boolean!
-  pvt:Boolean!
+  id: Int
+  createdAt: String
+  task: String
+  done: Boolean
+  pvt:Boolean
   user: User
 }
 
-type AuthResponse {
-  token: String!
-  user: User!
+type UserRes{
+  error: String,
+  data: User
 }
 
-type Mutation {
-  signup(email: String!, password: String!): AuthResponse!
-  removeUser(id:Int!,password:String!):User!
-  addTodo(userId:Int!,task:String!,done:Boolean!):Todo!
-  togaleDone(id:Int!):Todo
-  delletTodo(id:Int!):Todo
-  updateTodo(id:Int!,task:String!,done:Boolean):Todo
+type TodoRes{
+  error: String,
+  data: Todo
 }
+
+
+type QueryRes{
+  error: String,
+  data: [Todo]
+}
+
 
 type Query {
   say :String!
-  getUser(email: String!, password: String!): AuthResponse!
-  getAllUsers:[User]!
-  getAllTodo:[Todo]!
+  getTodoById(id: Int!): TodoRes!
+  getTodosByUser: QueryRes!
+  getUserById(token:String!): UserRes!
+}
+
+type Mutation {
+  signUp(email: String!, password: String!): UserRes!
+  login(email: String!, password: String!): UserRes!
+  logoutUser:UserRes!
+  removeUser(id:Int!,password:String!):UserRes!
+  addTodo(task:String!,done:Boolean!):TodoRes!
+  delletTodo(id:Int!):TodoRes!
+  updateTodo(id:String! ,task: String,done: Boolean):TodoRes!
 }
