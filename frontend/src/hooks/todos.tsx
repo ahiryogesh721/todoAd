@@ -1,42 +1,21 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { graphqlClient } from "@/utils/graphqlClient";
-import {
-  ADD_TODO,
-  DELLET_TODO,
-  GET_ALL_TODOS,
-  GET_TODO_BYID,
-  UPDATE_TODO,
-} from "@/utils/queries";
 import { queryClient } from "@/provider";
+import {
+  AddTodoMutationVariables,
+  DelletTodoMutationVariables,
+  getSdk,
+  GetTodoByIdQueryVariables,
+  UpdateTodoMutationVariables,
+} from "@/generated/graphql-request-sdk";
 
-export type TodoType = {
-  done: boolean;
-  id: number | null;
-  task: string;
-};
-
-export type TodoResType = {
-  error: string | unknown;
-  data: TodoType | undefined;
-};
-
-export type TodosResType = {
-  error: string | unknown;
-  data: TodoType[] | undefined;
-};
-
-export type UseTodoMutateFnType = {
-  error: string | unknown;
-  data: TodoType;
-};
+const sdk = getSdk(graphqlClient);
 
 export const useTodosQ = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["getTodosByUser"],
     queryFn: async () => {
-      const res = await graphqlClient.request<{ getTodosByUser: TodosResType }>(
-        GET_ALL_TODOS
-      );
+      const res = await sdk.getTodosByUser();
       if (res.getTodosByUser.error !== null) {
         throw new Error(`${res.getTodosByUser.error}`);
       }
@@ -47,16 +26,11 @@ export const useTodosQ = () => {
   return { data, isLoading, error };
 };
 
-export const useTodoQ = ({ id }: { id: string }) => {
+export const useTodoQ = ({ getTodoByIdId }: GetTodoByIdQueryVariables) => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["getTodoByUser"],
+    queryKey: ["getTodoById"],
     queryFn: async () => {
-      const res = await graphqlClient.request<{ getTodoById: TodoResType }>(
-        GET_TODO_BYID,
-        {
-          getTodoByIdId: parseInt(id),
-        }
-      );
+      const res = await sdk.getTodoById({ getTodoByIdId });
 
       if (res.getTodoById.error !== null) {
         throw new Error(`${res.getTodoById.error}`);
@@ -72,12 +46,8 @@ export const useTodoQ = ({ id }: { id: string }) => {
 export const useTodosDellet = () => {
   const { mutateAsync, error } = useMutation({
     mutationKey: ["delletTodo"],
-    mutationFn: async ({ id }: { id: string }) => {
-      const res = await graphqlClient.request<{
-        delletTodo: UseTodoMutateFnType;
-      }>(DELLET_TODO, {
-        delletTodoId: id,
-      });
+    mutationFn: async ({ delletTodoId }: DelletTodoMutationVariables) => {
+      const res = await sdk.delletTodo({ delletTodoId });
       if (res.delletTodo.error !== null) {
         throw new Error(`${res.delletTodo.error}`);
       }
@@ -90,7 +60,7 @@ export const useTodosDellet = () => {
         queryKey: ["getTodosByUser"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["getTodoByUser"],
+        queryKey: ["getTodoById"],
       });
     },
   });
@@ -104,19 +74,9 @@ export const useTodosUpdate = () => {
     mutationFn: async ({
       done,
       task,
-      id,
-    }: {
-      done: boolean;
-      task: string;
-      id: string;
-    }) => {
-      const res = await graphqlClient.request<{
-        updateTodo: UseTodoMutateFnType;
-      }>(UPDATE_TODO, {
-        updateTodoId: id,
-        done,
-        task,
-      });
+      updateTodoId,
+    }: UpdateTodoMutationVariables) => {
+      const res = await sdk.updateTodo({ done, task, updateTodoId });
       if (res.updateTodo.error !== null) {
         throw new Error(`${res.updateTodo.error}`);
       }
@@ -129,7 +89,7 @@ export const useTodosUpdate = () => {
         queryKey: ["getTodosByUser"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["getTodoByUser"],
+        queryKey: ["getTodoById"],
       });
     },
   });
@@ -140,14 +100,8 @@ export const useTodosUpdate = () => {
 export const useTodosAdd = () => {
   const { mutateAsync, error } = useMutation({
     mutationKey: ["addTodo"],
-    mutationFn: async ({ task, done }: { task: string; done: boolean }) => {
-      const res = await graphqlClient.request<{ addTodo: UseTodoMutateFnType }>(
-        ADD_TODO,
-        {
-          task,
-          done,
-        }
-      );
+    mutationFn: async ({ task, done }: AddTodoMutationVariables) => {
+      const res = await sdk.addTodo({ task, done });
       if (res.addTodo.error !== null) {
         throw new Error(`${res.addTodo.error}`);
       }
@@ -160,7 +114,7 @@ export const useTodosAdd = () => {
         queryKey: ["getTodosByUser"],
       });
       queryClient.invalidateQueries({
-        queryKey: ["getTodoByUser"],
+        queryKey: ["getTodoById"],
       });
     },
   });

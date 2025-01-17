@@ -1,0 +1,21 @@
+query getTodosByUser {
+  getTodosByUser {
+    error
+    data {
+      done
+      id
+      task
+    }
+  }
+}
+
+query getTodoById($getTodoByIdId: String!) {
+  getTodoById(id: $getTodoByIdId) {
+    error
+    data {
+      id
+      done
+      ...todoTask
+    }
+  }
+}

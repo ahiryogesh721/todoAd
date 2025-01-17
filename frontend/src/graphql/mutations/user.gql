@@ -1,0 +1,29 @@
+mutation signUp($password: String!, $email: String!) {
+  signUp(password: $password, email: $email) {
+    error
+    data {
+      email
+      id
+    }
+  }
+}
+
+mutation login($email: String!, $password: String!) {
+  login(email: $email, password: $password) {
+    error
+    data {
+      email
+      id
+    }
+  }
+}
+
+mutation logoutUser {
+  logoutUser {
+    error
+    data {
+      email
+      id
+    }
+  }
+}

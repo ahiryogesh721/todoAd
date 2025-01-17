@@ -1,0 +1,32 @@
+mutation addTodo($task: String!, $done: Boolean!) {
+  addTodo(task: $task, done: $done) {
+    error
+    data {
+      done
+      id
+      task
+    }
+  }
+}
+
+mutation delletTodo($delletTodoId: String!) {
+  delletTodo(id: $delletTodoId) {
+    error
+    data {
+      done
+      id
+      task
+    }
+  }
+}
+
+mutation updateTodo($updateTodoId: String!, $done: Boolean!, $task: String!) {
+  updateTodo(id: $updateTodoId, done: $done, task: $task) {
+    error
+    data {
+      done
+      id
+      task
+    }
+  }
+}

@@ -71,10 +71,10 @@ export default function SignUp() {
     cPassword: string;
   }) => {
     try {
+      if (values.cPassword !== values.password) return;
       await creatUserFn({
         email: values.email,
         password: values.password,
-        cPassword: values.cPassword,
       });
       formik.resetForm();
       router.push("/");

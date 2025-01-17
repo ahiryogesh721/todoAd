@@ -1,28 +1,28 @@
 "use client";
 
-import { TodoType, useTodoQ, useTodosUpdate } from "@/hooks/todos";
+import { useTodoQ, useTodosUpdate } from "@/hooks/todos";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import Link from "next/link";
 
 export default function Iner({ id }: { id: string }) {
-  const { data: todo } = useTodoQ({ id });
+  const { data: todo } = useTodoQ({ getTodoByIdId: id });
 
   const [edit, setEdit] = useState(false);
-  const [update, setUpdate] = useState<TodoType>({
+  const [update, setUpdate] = useState({
     task: "",
     done: false,
-    id: null,
+    id: "",
   });
   const { mutateAsync: updateTodoFn } = useTodosUpdate();
 
   const handelUpdate = async () => {
-    console.log("update");
+    console.log("update", update);
 
     try {
       await updateTodoFn({
-        id: `${update.id}`,
+        updateTodoId: `${update.id}`,
         done: update.done,
         task: update.task,
       });
@@ -33,9 +33,11 @@ export default function Iner({ id }: { id: string }) {
   };
 
   useEffect(() => {
-    if (todo !== undefined) {
-      setUpdate({ done: todo?.done, task: todo?.task, id: todo?.id });
-    }
+    setUpdate({
+      done: todo?.done ?? false,
+      task: todo?.task ?? "",
+      id: todo?.id ?? "",
+    });
   }, [todo]);
 
   return (
@@ -76,14 +78,16 @@ export default function Iner({ id }: { id: string }) {
             </Button>
           )}
 
-          <Button
-            onClick={handelUpdate}
-            className={`ml-4 px-3 py-2 bg-slate-500 text-slate-700 text-lg rounded-2xl ${
-              !edit ? `border-2 border-blue-600` : ``
-            }`}
-          >
-            done changes
-          </Button>
+          {edit && (
+            <Button
+              onClick={handelUpdate}
+              className={`ml-4 px-3 py-2 bg-slate-500 text-slate-700 text-lg rounded-2xl ${
+                !edit ? `border-2 border-blue-600` : ``
+              }`}
+            >
+              done changes
+            </Button>
+          )}
         </div>
       </div>
       <Link href={"/"} className="bg-blue-500 p-4 rounded-2xl">

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { graphqlClient } from "./utils/graphqlClient";
-import { AUth_USER } from "./utils/queries";
-import { useUserReqType } from "@/hooks/user";
+import { getSdk } from "./generated/graphql-request-sdk";
+
+const sdk = getSdk(graphqlClient);
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
@@ -14,10 +15,7 @@ export async function middleware(req: NextRequest) {
   }
 
   try {
-    const res = await graphqlClient.request<{ getUserById: useUserReqType }>(
-      AUth_USER,
-      { token: token?.value }
-    );
+    const res = await sdk.getUserById({ token: token?.value });
 
     let valid = false;
     if (res.getUserById.error === null) {

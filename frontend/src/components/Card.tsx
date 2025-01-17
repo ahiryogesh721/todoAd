@@ -1,9 +1,13 @@
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
-import { TodoType, useTodosDellet } from "@/hooks/todos";
+import { useTodosDellet } from "@/hooks/todos";
 
 type CardProps = {
-  todo: TodoType;
+  todo: {
+    done: boolean;
+    id: string;
+    task: string;
+  };
   i: number;
 };
 
@@ -14,7 +18,7 @@ export default function Card({ todo, i }: CardProps) {
 
   const handelDellet = async () => {
     try {
-      delletTodoFn({ id: `${todo.id}` });
+      delletTodoFn({ delletTodoId: `${todo.id}` });
     } catch (error) {
       console.log(error);
     }

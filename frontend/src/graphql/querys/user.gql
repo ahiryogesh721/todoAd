@@ -1,0 +1,9 @@
+query getUserById($token: String!) {
+  getUserById(token: $token) {
+    error
+    data {
+      email
+      id
+    }
+  }
+}

@@ -1,6 +1,6 @@
 "use client";
 import Card from "@/components/Card";
-import { TodoType, useTodosAdd, useTodosQ } from "@/hooks/todos";
+import { useTodosAdd, useTodosQ } from "@/hooks/todos";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,7 +62,7 @@ export default function Home() {
       <div className="flex flex-col gap-2 items-center">
         {todos && todos.length !== 0 && (
           <div className="w-full flex flex-col gap-2 p-2">
-            {todos.map((todo: TodoType, i: number) => {
+            {todos.map((todo, i) => {
               return (
                 <div
                   className="p-2 m-2 rounded-2xl flex flex-col  bg-slate-300 "
